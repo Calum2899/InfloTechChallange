@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
 
@@ -10,12 +11,16 @@ public class UsersController : Controller
     private readonly IUserService _userService;
     public UsersController(IUserService userService) => _userService = userService;
 
-    [HttpGet ]
-    public ViewResult List() => View(CreateModel(GetUsers()));
     [HttpGet]
-    public ViewResult ListActive() => View("List", CreateModel(GetUsers().Where(u => u.IsActive == true)));
-    [HttpGet]
-    public ViewResult ListInactive() => View("List", CreateModel(GetUsers().Where(u => u.IsActive == false)));
+    public ViewResult List(bool? isActive = null)
+    {
+        var users = GetUsers();
+
+        if (isActive.HasValue)
+            users = users.Where(u => u.IsActive == isActive.Value);
+
+        return View(CreateModel(users));
+    }
     private IEnumerable<UserListItemViewModel> GetUsers() => _userService.GetAll().Select(p => new UserListItemViewModel
     {
         Id = p.Id,
@@ -30,4 +35,15 @@ public class UsersController : Controller
         Items = items.ToList()
     };
 
+    void AddUser(string forename, string surname, DateOnly dateOfBirth, string email, bool isActive = true)
+    {
+        _userService.Create(new Models.User
+        {
+            Forename = forename,
+            Surname = surname,
+            DateOfBirth = dateOfBirth,
+            Email = email,
+            IsActive = isActive
+        });
+    }
 }
