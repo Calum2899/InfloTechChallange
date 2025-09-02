@@ -30,7 +30,7 @@ public class UserServiceTests
         var result = service.FilterByActive(true);
 
         // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Should().BeSameAs(users.Where(u => u.IsActive == true));
+        result.Should().BeEquivalentTo(users.Where(u => u.IsActive == true));
     }
     [Fact]
     public void GetActive_WhenParametersAreFalse_MustReturnOnlyInactiveEntities()
@@ -43,7 +43,7 @@ public class UserServiceTests
         var result = service.FilterByActive(false);
 
         // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Should().BeSameAs(users.Where(u => u.IsActive == false));
+        result.Should().BeEquivalentTo(users.Where(u => u.IsActive == false));
     }
 
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
