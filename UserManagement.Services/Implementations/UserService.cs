@@ -19,6 +19,7 @@ public class UserService : IUserService
     public IEnumerable<User> FilterByActive(bool isActive)
     {
         throw new NotImplementedException();
+        //TODO: Implement this method to filter users by their active state
     }
 
     public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>();

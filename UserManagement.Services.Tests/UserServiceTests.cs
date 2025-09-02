@@ -19,6 +19,32 @@ public class UserServiceTests
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Should().BeSameAs(users);
     }
+    [Fact]
+    public void GetActive_WhenParametersAreTrue_MustReturnOnlyActiveEntities()
+    {
+        // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
+        var service = CreateService();
+        var users = SetupUsers();
+
+        // Act: Invokes the method under test with the arranged parameters.
+        var result = service.FilterByActive(true);
+
+        // Assert: Verifies that the action of the method under test behaves as expected.
+        result.Should().BeSameAs(users.Where(u => u.IsActive == true));
+    }
+    [Fact]
+    public void GetActive_WhenParametersAreFalse_MustReturnOnlyInactiveEntities()
+    {
+        // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
+        var service = CreateService();
+        var users = SetupUsers();
+
+        // Act: Invokes the method under test with the arranged parameters.
+        var result = service.FilterByActive(false);
+
+        // Assert: Verifies that the action of the method under test behaves as expected.
+        result.Should().BeSameAs(users.Where(u => u.IsActive == false));
+    }
 
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
     {
