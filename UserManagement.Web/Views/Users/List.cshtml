@@ -9,6 +9,7 @@
                 <th>Id</th>
                 <th>Forename</th>
                 <th>Surname</th>
+                <th>Date Of Birth</th>
                 <th>Email</th>
                 <th>Account Active</th>
                 <th style="width: 1px;"></th>
@@ -26,6 +27,9 @@
                     </td>
                     <td>
                         @item.Surname
+                    </td>
+                    <td>
+                        @item.DateOfBirth.ToString("dd-MM-yyyy")
                     </td>
                     <td>
                         @item.Email
