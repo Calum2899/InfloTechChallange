@@ -24,14 +24,14 @@ public class UserControllerTests
             .Which.Items.Should().BeEquivalentTo(users);
     }
     [Fact]
-    public void ListWhereParamsAreTrue_WhenServiceReturnsActiveUsers_ModelMustContainActiveUsers()
+    public void ListActive_WhenServiceReturnsActiveUsers_ModelMustContainActiveUsers()
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var controller = CreateController();
         var users = SetupUsers();
 
         // Act: Invokes the method under test with the arranged parameters.
-        var result = controller.List(true);
+        var result = controller.ListActive();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Model
@@ -39,14 +39,14 @@ public class UserControllerTests
             .Which.Items.Should().BeEquivalentTo(users.Where(u => u.IsActive == true));
     }
     [Fact]
-    public void ListWhereParamsAreFalse_WhenServiceReturnsInactiveUsers_ModelMustContainInactiveUsers()
+    public void ListAInative_WhenServiceReturnsInactiveUsers_ModelMustContainInactiveUsers()
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var controller = CreateController();
         var users = SetupUsers();
 
         // Act: Invokes the method under test with the arranged parameters.
-        var result = controller.List(false);
+        var result = controller.ListInactive();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
         result.Model
