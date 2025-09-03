@@ -10,5 +10,7 @@ namespace UserManagement.Services.Domain.Interfaces
         /// </summary>
         /// <returns></returns>
         IEnumerable<Log> GetAll();
+        IEnumerable<Log> GetByUserId(long userId);
+        Log GetById(long id);
     }
 }

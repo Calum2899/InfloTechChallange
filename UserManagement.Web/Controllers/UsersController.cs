@@ -3,6 +3,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
+using UserManagement.Web.Models.Combined;
+using UserManagement.Web.Models.Logs;
 using UserManagement.Web.Models.Users;
 
 namespace UserManagement.WebMS.Controllers
@@ -116,24 +118,46 @@ namespace UserManagement.WebMS.Controllers
         }
 
         [HttpGet]
-        public IActionResult View(long id) // implement View in logs?
+        public IActionResult View(long id)
         {
+            var logService = HttpContext.RequestServices.GetService(typeof(ILogService)) as ILogService;
+            if (logService == null) return StatusCode(500, "Log service not available");
+
             var user = _userService.GetById((int)id);
             if (user == null) return NotFound();
 
-            var model = new UserFormViewModel
+            var logs = logService.GetByUserId(user.Id)
+                .Select(l => new LogListItemViewModel
+                {
+                    Id = l.Id,
+                    UserId = l.UserId,
+                    Timestamp = l.Timestamp,
+                    Action = l.Action,
+                    Description = l.Description,
+                    ModifiedBy = l.ModifiedBy
+                })
+                .ToList();
+
+            var model = new UserAndLogCombinedViewModel
             {
-                Id = user.Id,
-                Forename = user.Forename,
-                Surname = user.Surname,
-                DateOfBirth = user.DateOfBirth,
-                Email = user.Email,
-                IsActive = user.IsActive
+                User = new UserFormViewModel
+                {
+                    Id = user.Id,
+                    Forename = user.Forename,
+                    Surname = user.Surname,
+                    DateOfBirth = user.DateOfBirth,
+                    Email = user.Email,
+                    IsActive = user.IsActive
+                },
+                Logs = new LogListViewModel
+                {
+                    Items = logs
+                }
             };
 
             return View("ViewUserForm", model);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(long id, long modifiedBy)
