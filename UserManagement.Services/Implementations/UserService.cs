@@ -22,10 +22,10 @@ namespace UserManagement.Services.Domain.Implementations
 
         public User? GetById(int id) => _dataAccess.GetAll<User>().FirstOrDefault(u => u.Id == id);
 
-        public void Create(User user) => _dataAccess.Create(user);
+        public void Create(User user, long modifiedBy) => _dataAccess.Create(user, modifiedBy);
 
-        public void Update(User user) => _dataAccess.Update(user);
+        public void Update(User user, long modifiedBy) => _dataAccess.Update(user, modifiedBy);
 
-        public void Delete(User user) => _dataAccess.Delete(user);
+        public void Delete(User user, long modifiedBy) => _dataAccess.Delete(user, modifiedBy);
     }
 }

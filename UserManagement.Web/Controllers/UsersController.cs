@@ -54,7 +54,7 @@ namespace UserManagement.WebMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(UserFormViewModel model)
+        public IActionResult Create(UserFormViewModel model, long modifiedBy)
         {
             if (!ModelState.IsValid)
             {
@@ -70,7 +70,7 @@ namespace UserManagement.WebMS.Controllers
                 IsActive = model.IsActive
             };
 
-            _userService.Create(user);
+            _userService.Create(user, 0); //As there is no authentication implemented yet, we pass 0 as ModifiedBy
 
             return RedirectToAction(nameof(List));
         }
@@ -96,7 +96,7 @@ namespace UserManagement.WebMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(UserFormViewModel model)
+        public IActionResult Edit(UserFormViewModel model, long modifiedBy)
         {
             if (!ModelState.IsValid) return View("EditUserForm", model);
 
@@ -110,13 +110,13 @@ namespace UserManagement.WebMS.Controllers
                 IsActive = model.IsActive
             };
 
-            _userService.Update(user);
+            _userService.Update(user, 0); //As there is no authentication implemented yet, we pass 0 as ModifiedBy
 
             return RedirectToAction(nameof(List));
         }
 
         [HttpGet]
-        public IActionResult View(long id)
+        public IActionResult View(long id) // implement View in logs?
         {
             var user = _userService.GetById((int)id);
             if (user == null) return NotFound();
@@ -136,12 +136,12 @@ namespace UserManagement.WebMS.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(long id)
+        public IActionResult Delete(long id, long modifiedBy)
         {
             var user = _userService.GetById((int)id);
             if (user == null) return NotFound();
 
-            _userService.Delete(user);
+            _userService.Delete(user, 0); //As there is no authentication implemented yet, we pass 0 as ModifiedBy
 
             return RedirectToAction(nameof(List));
         }
