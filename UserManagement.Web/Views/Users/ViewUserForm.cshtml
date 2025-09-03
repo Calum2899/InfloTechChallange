@@ -1,0 +1,31 @@
+﻿@model UserManagement.Web.Models.Users.UserFormViewModel
+
+<h2>View User</h2>
+
+<form>
+    <div class="mb-3">
+        <label asp-for="Id" class="form-label"></label>
+        <input asp-for="Id" class="form-control" disabled />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Forename" class="form-label"></label>
+        <input asp-for="Forename" class="form-control" disabled />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Surname" class="form-label"></label>
+        <input asp-for="Surname" class="form-control" disabled />
+    </div>
+    <div class="mb-3">
+        <label asp-for="DateOfBirth" class="form-label"></label>
+        <input asp-for="DateOfBirth" class="form-control" type="date" disabled />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" type="email" disabled />
+    </div>
+    <div class="mb-3 form-check">
+        <input asp-for="IsActive" class="form-check-input" type="checkbox" disabled/>
+        <label asp-for="IsActive" class="form-check-label"></label>
+    </div>
+    <a asp-controller="Users" asp-action="List" class="btn btn-secondary">Back</a>
+</form>
