@@ -11,16 +11,20 @@
         <input asp-for="UserId" class="form-control" disabled />
     </div>
     <div class="mb-3">
+        <label asp-for="user" class="form-label">User</label>
+        <input asp-for="user" value="@Model.user.Forename @Model.user.Surname" class="form-control" disabled />
+    </div>
+    <div class="mb-3">
         <label asp-for="Timestamp" class="form-label"></label>
-        <input asp-for="Timestamp" class="form-control" type="datetime" disabled />
+        <input asp-for="Timestamp" value="@Model.Timestamp.ToString("dd MMMM yyyy, HH:mm:ss")" class="form-control" type="datetime" disabled />
     </div>
     <div class="mb-3">
         <label asp-for="Description" class="form-label"></label>
         <input asp-for="Description" class="form-control" disabled />
     </div>
     <div class="mb-3">
-        <label asp-for="ModifiedBy" class="form-label"></label>
-        <input asp-for="ModifiedBy" class="form-control" disabled />
+        <label asp-for="UserThatModified" class="form-label">Modified By</label>
+        <input asp-for="UserThatModified" value="@Model.UserThatModified.Forename @Model.UserThatModified.Surname" class="form-control" disabled />
     </div>
     <a asp-controller="Logs" asp-action="List" class="btn btn-secondary">Back</a>
 </form>

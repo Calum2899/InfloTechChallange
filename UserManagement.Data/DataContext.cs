@@ -18,6 +18,7 @@ namespace UserManagement.Data
             // Seed Users
             var users = new[]
             {
+                new User { Id = -1L, Forename = "System", Surname = "User", DateOfBirth = new DateOnly(2000, 01, 01), Email = "system@example.com", IsActive = false },
                 new User { Id = 1, Forename = "Peter", Surname = "Loew", DateOfBirth = new DateOnly(2000, 01, 01), Email = "ploew@example.com", IsActive = true },
                 new User { Id = 2, Forename = "Benjamin Franklin", Surname = "Gates", DateOfBirth = new DateOnly(2000, 01, 01), Email = "bfgates@example.com", IsActive = true },
                 new User { Id = 3, Forename = "Castor", Surname = "Troy", DateOfBirth = new DateOnly(2000, 01, 01), Email = "ctroy@example.com", IsActive = false },
@@ -32,16 +33,19 @@ namespace UserManagement.Data
             };
 
             model.Entity<User>().HasData(users);
-            //seed logs
-            var logs = users.Select(u => new Log
-            {
-                Id = u.Id, // use same ID as User
-                UserId = u.Id,
-                Action = "Create",
-                Description = $"User {u.Forename} {u.Surname} created by system.",
-                ModifiedBy = 0, // system
-                Timestamp = DateTime.UtcNow
-            }).ToArray();
+
+            //Seed logs
+            var logs = users
+                .Where(u => u.Id != -1L) // skip system user
+                .Select(u => new
+                {
+                    Id = u.Id,
+                    UserId = u.Id,
+                    Action = "Create",
+                    Description = $"User {u.Forename} {u.Surname} created by system.",
+                    ModifiedBy = -1L,
+                    Timestamp = DateTime.UtcNow
+                });
 
             model.Entity<Log>().HasData(logs);
 
@@ -49,15 +53,16 @@ namespace UserManagement.Data
             model.Entity<Log>(entity =>
             {
                 entity.HasKey(l => l.Id);
+
                 entity.Property(l => l.Action).IsRequired();
                 entity.Property(l => l.Description).IsRequired();
 
-                entity.HasOne<User>()
+                entity.HasOne(l => l.User)
                       .WithMany()
                       .HasForeignKey(l => l.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne<User>()
+                entity.HasOne(l => l.UserThatModified)
                       .WithMany()
                       .HasForeignKey(l => l.ModifiedBy)
                       .OnDelete(DeleteBehavior.Restrict);
@@ -100,15 +105,14 @@ namespace UserManagement.Data
         // Helper method to create a log
         private void AddLog(long userId, string action, string description, long modifiedBy)
         {
-            // Treat 0 as system
-            var actualModifiedBy = modifiedBy == 0 ? 0 : modifiedBy;
-
+            // Treat -1 as system
+            var actualModifiedBy = modifiedBy == -1 ? -1 : modifiedBy;
             var log = new Log
             {
                 UserId = userId,
                 Action = action,
                 Description = description,
-                ModifiedBy = actualModifiedBy,
+                ModifiedBy = modifiedBy,
                 Timestamp = DateTime.UtcNow
             };
 
