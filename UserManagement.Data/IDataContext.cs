@@ -18,15 +18,20 @@ public interface IDataContext
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="entity"></param>
     /// <returns></returns>
-    void Create<TEntity>(TEntity entity) where TEntity : class;
+    void Create<TEntity>(TEntity entity, long modifiedBy) where TEntity : class;
 
     /// <summary>
-    /// Uodate an existing item matching the ID
+    /// Update an existing item matching the ID
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="entity"></param>
     /// <returns></returns>
-    void Update<TEntity>(TEntity entity) where TEntity : class;
-
-    void Delete<TEntity>(TEntity entity) where TEntity : class;
+    void Update<TEntity>(TEntity entity, long modifiedBy) where TEntity : class;
+    /// <summary>
+    /// Delete an existing item matching the ID
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    void Delete<TEntity>(TEntity entity, long modifiedBy) where TEntity : class;
 }

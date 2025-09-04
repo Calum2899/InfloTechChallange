@@ -1,0 +1,78 @@
+﻿using System;
+using System.Collections.Generic;
+using UserManagement.Models;
+using UserManagement.Services.Domain.Implementations;
+using UserManagement.Services.Domain.Interfaces;
+using UserManagement.Web.Models.Logs;
+using UserManagement.WebMS.Controllers;
+
+namespace UserManagement.Data.Tests;
+
+public class LogControllerTests
+{
+    [Fact]
+    public void List_WhenServiceReturnsLogs_ModelMustContainLogs()
+    {
+        // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
+        var controller = CreateController();
+        var logs = SetupLogs();
+
+        // Act: Invokes the method under test with the arranged parameters.
+        var result = controller.List();
+
+        // Assert: Verifies that the action of the method under test behaves as expected.
+        result.Model
+            .Should().BeOfType<LogListViewModel>()
+            .Which.Items.Should().BeEquivalentTo(logs);
+    }
+    [Fact]
+    public void List_WhenServiceReturnsUsers_ModelMustContainRequestedLog()
+    {
+        // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
+        var context = new DataContext();
+        var service = new LogService(context);
+
+        var log = new Log
+        {
+            Id = 100,
+            UserId = 1,
+            Action = "Test",
+            Description = "Test log",
+            ModifiedBy = 0,
+            Timestamp = DateTime.UtcNow
+        };
+
+        context.Add(log);
+        context.SaveChanges();
+
+        // Act: Invokes the method under test with the arranged parameters.
+        var result = service.GetById(100);
+
+        // Assert: Verifies that the action of the method under test behaves as expected.
+        result.Should().NotBeNull();
+        result.Id.Should().Be(100);
+        result.Description.Should().Be("Test log");
+    }
+
+    private List<Log> SetupLogs(long userId = 1, string action = "Create", long modifiedBy = 0)
+    {
+        var logsList = new List<Log>
+        {
+            new Log
+            {
+                UserId = userId,
+                Action = action,
+                Description = $"User action {action} performed.",
+                ModifiedBy = modifiedBy,
+                Timestamp = DateTime.UtcNow
+            }
+        };
+
+        _logService.Setup(s => s.GetAll()).Returns(() => logsList);
+
+        return logsList;
+    }
+
+    private readonly Mock<ILogService> _logService = new();
+    private LogsController CreateController() => new(_logService.Object);
+}

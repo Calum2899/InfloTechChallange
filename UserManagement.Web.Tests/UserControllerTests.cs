@@ -71,7 +71,7 @@ public class UserControllerTests
             DateOfBirth = new DateOnly(1990, 01, 01),
             Email = "test@test.com",
             IsActive = true
-        });
+        },0);
 
         var result = controller.List();
 
@@ -100,7 +100,7 @@ public class UserControllerTests
         };
 
         // Act: Invokes the method under test with the arranged parameters.
-        controller.Edit(updatedModel);
+        controller.Edit(updatedModel, 0);
 
         var result = controller.List();
 
@@ -125,15 +125,8 @@ public class UserControllerTests
 
         var userToDelete = users[0];
 
-        // Setup Delete callback to remove the user from the list
-        _userService.Setup(s => s.Delete(It.IsAny<User>()))
-                    .Callback<User>(u =>
-                    {
-                        users.RemoveAll(x => x.Id == u.Id);
-                    });
-
         // Act: Invokes the method under test with the arranged parameters.
-        controller.Delete(userToDelete.Id);
+        controller.Delete(userToDelete.Id, 0);
 
         var result = controller.List();
 
@@ -161,27 +154,28 @@ public class UserControllerTests
 
         _userService.Setup(s => s.GetAll()).Returns(() => userList);
 
-        _userService.Setup(s => s.Create(It.IsAny<User>())).Callback<User>(u =>
-                    {
-                        u.Id = userList.Count > 0 ? userList.Max(x => x.Id) + 1 : 1;
-                        userList.Add(u);
-                    });
+        _userService.Setup(s => s.Create(It.IsAny<User>(), It.IsAny<long>())).Callback<User, long>((u, _) =>
+        {
+            u.Id = userList.Count > 0 ? userList.Max(x => x.Id) + 1 : 1;
+            userList.Add(u);
+        });
 
+        _userService.Setup(s => s.Update(It.IsAny<User>(), It.IsAny<long>())).Callback<User, long>((u, _) =>
+        {
+            var existing = userList.FirstOrDefault(x => x.Id == u.Id);
+            if (existing != null)
+            {
+                existing.Forename = u.Forename;
+                existing.Surname = u.Surname;
+                existing.DateOfBirth = u.DateOfBirth;
+                existing.Email = u.Email;
+                existing.IsActive = u.IsActive;
+            }
+        });
 
-        _userService.Setup(s => s.Update(It.IsAny<User>())).Callback<User>(u =>
-                    {
-                        var existing = userList.FirstOrDefault(x => x.Id == u.Id);
-                        if (existing != null)
-                        {
-                            existing.Forename = u.Forename;
-                            existing.Surname = u.Surname;
-                            existing.DateOfBirth = u.DateOfBirth;
-                            existing.Email = u.Email;
-                            existing.IsActive = u.IsActive;
-                        }
-                    });
         _userService.Setup(s => s.GetById(It.IsAny<int>())).Returns<int>(id => userList.FirstOrDefault(u => u.Id == id));
-        _userService.Setup(s => s.Delete(It.IsAny<User>())).Callback<User>(u =>
+
+        _userService.Setup(s => s.Delete(It.IsAny<User>(), It.IsAny<long>())).Callback<User, long>((u, _) =>
         {
             userList.RemoveAll(x => x.Id == u.Id);
         });

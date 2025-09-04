@@ -1,31 +1,65 @@
-﻿@model UserManagement.Web.Models.Users.UserFormViewModel
+﻿@model UserManagement.Web.Models.Combined.UserAndLogCombinedViewModel
 
 <h2>View User</h2>
 
 <form>
     <div class="mb-3">
-        <label asp-for="Id" class="form-label"></label>
-        <input asp-for="Id" class="form-control" disabled />
+        <label asp-for="User.Id" class="form-label"></label>
+        <input asp-for="User.Id" class="form-control" disabled />
     </div>
     <div class="mb-3">
-        <label asp-for="Forename" class="form-label"></label>
-        <input asp-for="Forename" class="form-control" disabled />
+        <label asp-for="User.Forename" class="form-label"></label>
+        <input asp-for="User.Forename" class="form-control" disabled />
     </div>
     <div class="mb-3">
-        <label asp-for="Surname" class="form-label"></label>
-        <input asp-for="Surname" class="form-control" disabled />
+        <label asp-for="User.Surname" class="form-label"></label>
+        <input asp-for="User.Surname" class="form-control" disabled />
     </div>
     <div class="mb-3">
-        <label asp-for="DateOfBirth" class="form-label"></label>
-        <input asp-for="DateOfBirth" class="form-control" type="date" disabled />
+        <label asp-for="User.DateOfBirth" class="form-label"></label>
+        <input asp-for="User.DateOfBirth" class="form-control" type="date" disabled />
     </div>
     <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" type="email" disabled />
+        <label asp-for="User.Email" class="form-label"></label>
+        <input asp-for="User.Email" class="form-control" type="email" disabled />
     </div>
     <div class="mb-3 form-check">
-        <input asp-for="IsActive" class="form-check-input" type="checkbox" disabled/>
-        <label asp-for="IsActive" class="form-check-label"></label>
+        <input asp-for="User.IsActive" class="form-check-input" type="checkbox" disabled />
+        <label asp-for="User.IsActive" class="form-check-label"></label>
     </div>
     <a asp-controller="Users" asp-action="List" class="btn btn-secondary">Back</a>
 </form>
+
+<h3>Logs</h3>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>UserId</th>
+                <th>Timestamp</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Logs.Items.Where(u => u.UserId == Model.User.Id))
+            {
+                <tr>
+                    <td>
+                        @item.Id
+                    </td>
+                    <td>
+                        @item.UserId
+                    </td>
+                    <td>
+                        @item.Timestamp.ToString("dd-MM-yyyy HH:mm:ss")
+                    </td>
+                    <td>
+                        @item.Action
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

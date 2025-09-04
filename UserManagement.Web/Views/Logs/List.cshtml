@@ -1,0 +1,146 @@
+﻿@model UserManagement.Web.Models.Logs.LogListViewModel
+
+<h2>Log List</h2>
+
+<form asp-action="List" method="get" class="mb-3 d-flex align-items-center gap-2">
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" placeholder="Search..." class="form-control w-auto" />
+
+    <select name="searchColumn" class="form-select w-auto">
+        <option value="Action" selected="@("Action" == Model.SearchColumn)">Action</option>
+        <option value="Description" selected="@("Description" == Model.SearchColumn)">Description</option>
+        <option value="UserId" selected="@("UserId" == Model.SearchColumn)">UserId</option>
+    </select>
+
+    <input type="hidden" name="sortBy" value="@Model.SortBy" />
+    <input type="hidden" name="sortDirection" value="@Model.SortDirection" />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    <a asp-action="List"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-searchColumn="@Model.SearchColumn"
+                       asp-route-sortBy="Id"
+                       asp-route-sortDirection="@(Model.SortBy == "Id" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-page="1"
+                       asp-route-pageSize="@Model.PageSize">
+                        Id @(Model.SortBy == "Id" ? (Model.SortDirection == "asc" ? "↑" : "↓") : "")
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="List"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-searchColumn="@Model.SearchColumn"
+                       asp-route-sortBy="UserId"
+                       asp-route-sortDirection="@(Model.SortBy == "UserId" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-page="1"
+                       asp-route-pageSize="@Model.PageSize">
+                        UserId @(Model.SortBy == "UserId" ? (Model.SortDirection == "asc" ? "↑" : "↓") : "")
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="List"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-searchColumn="@Model.SearchColumn"
+                       asp-route-sortBy="Timestamp"
+                       asp-route-sortDirection="@(Model.SortBy == "Timestamp" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-page="1"
+                       asp-route-pageSize="@Model.PageSize">
+                        Timestamp @(Model.SortBy == "Timestamp" ? (Model.SortDirection == "asc" ? "↑" : "↓") : "")
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="List"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-searchColumn="@Model.SearchColumn"
+                       asp-route-sortBy="Action"
+                       asp-route-sortDirection="@(Model.SortBy == "Action" && Model.SortDirection == "asc" ? "desc" : "asc")"
+                       asp-route-page="1"
+                       asp-route-pageSize="@Model.PageSize">
+                        Action @(Model.SortBy == "Action" ? (Model.SortDirection == "asc" ? "↑" : "↓") : "")
+                    </a>
+                </th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.UserId</td>
+                    <td>@item.Timestamp.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                    <td>@item.Action</td>
+                    <td>
+                        <a asp-controller="Logs"
+                           asp-action="DetailsOfSelectedLog"
+                           asp-route-id="@item.Id"
+                           class="btn btn-primary">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Logs pagination">
+        <ul class="pagination">
+            <li class="page-item @(Model.HasPrev ? "" : "disabled")">
+                <a class="page-link" asp-action="List"
+                   asp-route-page="1"
+                   asp-route-pageSize="@Model.PageSize"
+                   asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-searchColumn="@Model.SearchColumn"
+                   asp-route-sortBy="@Model.SortBy"
+                   asp-route-sortDirection="@Model.SortDirection">First</a>
+            </li>
+            <li class="page-item @(Model.HasPrev ? "" : "disabled")">
+                <a class="page-link" asp-action="List"
+                   asp-route-page="@(Model.Page - 1)"
+                   asp-route-pageSize="@Model.PageSize"
+                   asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-searchColumn="@Model.SearchColumn"
+                   asp-route-sortBy="@Model.SortBy"
+                   asp-route-sortDirection="@Model.SortDirection">Prev</a>
+            </li>
+
+            @for (int p = Math.Max(1, Model.Page - 2); p <= Math.Min(Model.TotalPages, Model.Page + 2); p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link" asp-action="List"
+                       asp-route-page="@p"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-searchColumn="@Model.SearchColumn"
+                       asp-route-sortBy="@Model.SortBy"
+                       asp-route-sortDirection="@Model.SortDirection">@p</a>
+                </li>
+            }
+
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" asp-action="List"
+                   asp-route-page="@(Model.Page + 1)"
+                   asp-route-pageSize="@Model.PageSize"
+                   asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-searchColumn="@Model.SearchColumn"
+                   asp-route-sortBy="@Model.SortBy"
+                   asp-route-sortDirection="@Model.SortDirection">Next</a>
+            </li>
+            <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                <a class="page-link" asp-action="List"
+                   asp-route-page="@Model.TotalPages"
+                   asp-route-pageSize="@Model.PageSize"
+                   asp-route-searchTerm="@Model.SearchTerm"
+                   asp-route-searchColumn="@Model.SearchColumn"
+                   asp-route-sortBy="@Model.SortBy"
+                   asp-route-sortDirection="@Model.SortDirection">Last</a>
+            </li>
+        </ul>
+    </nav>
+}
