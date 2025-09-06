@@ -1,0 +1,44 @@
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build --no-restore -c Release
+
+      - name: Test
+        run: dotnet test --no-build -c Release --verbosity normal
+
+      # Publish API
+      - name: Publish API
+        run: dotnet publish UserManagement.Api/UserManagement.Api.csproj -c Release -o ./artifacts/api
+
+      # Publish Blazor WASM (the static site lives in publish/wwwroot)
+      - name: Publish Client
+        run: dotnet publish UserManagement.Client/UserManagement.Client.csproj -c Release -o ./artifacts/client
+
+      - name: Upload API artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api_publish
+          path: ./artifacts/api
+
+      - name: Upload Client artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client_publish
+          path: ./artifacts/client
