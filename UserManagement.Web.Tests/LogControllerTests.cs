@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
 using UserManagement.Services.Domain.Interfaces;
@@ -21,9 +22,9 @@ public class LogControllerTests
         var result = controller.List();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Model
-            .Should().BeOfType<LogListViewModel>()
-            .Which.Items.Should().BeEquivalentTo(logs);
+        var view = result.Should().BeOfType<ViewResult>().Subject;
+        var model = view.Model.Should().BeOfType<LogListViewModel>().Subject;
+        model.Items.Should().BeEquivalentTo(logs);
     }
     [Fact]
     public void List_WhenServiceReturnsUsers_ModelMustContainRequestedLog()

@@ -1,0 +1,33 @@
+﻿@attribute [AllowAnonymous]
+@page "/login"
+
+@inject UserManagement.Client.Services.ApiClient Api
+@inject NavigationManager Nav
+
+<EditForm Model="model" OnValidSubmit="DoLogin">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <InputText @bind-Value="model.Email" placeholder="Email" />
+  <InputText @bind-Value="model.Password" placeholder="Password" type="password" />
+
+  <button type="submit">Login</button>
+</EditForm>
+
+@code {
+    LoginVm model = new();
+
+    private async Task DoLogin()
+    {
+        var ok = await Api.LoginAsync(model.Email, model.Password);
+        if (ok) Nav.NavigateTo("/");
+    }
+
+    public class LoginVm
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Email { get; set; } = "";
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Password { get; set; } = "";
+    }
+}
