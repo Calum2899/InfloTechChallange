@@ -1,0 +1,153 @@
+﻿@page "/"
+@using Microsoft.JSInterop
+@attribute [Authorize]
+@inject UserManagement.Client.Services.ApiClient Api
+@inject NavigationManager Nav
+@inject Microsoft.JSInterop.IJSRuntime JS
+
+<h2>User List</h2>
+
+@if (!string.IsNullOrWhiteSpace(error))
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+<!-- event-wiring test -->
+<button type="button" class="btn btn-danger mb-3" @onclick="TestClick">Test click</button>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="btn-group" role="group" aria-label="Filter">
+        <button type="button" class="btn btn-outline-secondary" @onclick="ShowAll">Show All</button>
+        <button type="button" class="btn btn-outline-secondary" @onclick="ShowActive">Active Only</button>
+        <button type="button" class="btn btn-outline-secondary" @onclick="ShowInactive">Non Active</button>
+    </div>
+
+    <button type="button" class="btn btn-primary" @onclick="GoToAdd">Add User</button>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Forename</th>
+                <th>Surname</th>
+                <th>Date Of Birth</th>
+                <th>Email</th>
+                <th>Account Active</th>
+                <th style="width:1px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (isLoading)
+            {
+                <tr><td colspan="7">Loading…</td></tr>
+            }
+            else if (users.Count == 0)
+            {
+                <tr><td colspan="7">No users found.</td></tr>
+            }
+            else
+            {
+                @foreach (var item in users)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Forename</td>
+                        <td>@item.Surname</td>
+                        <td>@item.DateOfBirth.ToString("dd-MM-yyyy")</td>
+                        <td>@item.Email</td>
+                        <td>@(item.IsActive ? "Yes" : "No")</td>
+                        <td>
+                            <div class="dropdown">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        id="btnToggleActions-@item.Id">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnToggleActions-@item.Id">
+                                    <li><a class="dropdown-item" href="@($"/view/{item.Id}")">View</a></li>
+                                    <li><a class="dropdown-item" href="@($"/edit/{item.Id}")">Edit</a></li>
+                                    <li>
+                                        <a href="#"
+                                           class="dropdown-item"
+                                           @onclick="(() => OnDelete(item))"
+                                           @onclick:preventDefault="true"
+                                           @onclick:stopPropagation="true">
+                                            Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private List<UserDto> users = new();
+    private bool? currentFilter = null;
+    private bool isLoading;
+    private string? error;
+
+    protected override async Task OnInitializedAsync() => await SafeLoad();
+
+    private Task ShowAll() => SetFilter(null);
+    private Task ShowActive() => SetFilter(true);
+    private Task ShowInactive() => SetFilter(false);
+    private void GoToAdd() => Nav.NavigateTo("/add");
+
+    private async Task TestClick()
+        => await JS.InvokeVoidAsync("alert", "clicked");
+
+    private async Task SetFilter(bool? isActive)
+    {
+        currentFilter = isActive;
+        await SafeLoad();
+    }
+
+    private async Task SafeLoad()
+    {
+        try
+        {
+            error = null;
+            isLoading = true;
+            users = await Api.GetUsersAsync(currentFilter) ?? new List<UserDto>();
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("console.error", ex.ToString());
+            error = "Failed to load users. See console for details.";
+            users = new();
+        }
+        finally
+        {
+            isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task OnDelete(UserDto u)
+    {
+        var ok = await JS.InvokeAsync<bool>("confirm",
+            $"Are you sure you want to delete this user?\nID: {u.Id}\nName: {u.Forename} {u.Surname}");
+        if (!ok) return;
+
+        try
+        {
+            await Api.DeleteUserAsync(u.Id);
+            await SafeLoad();
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("console.error", ex.ToString());
+            error = "Delete failed. See console.";
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}
